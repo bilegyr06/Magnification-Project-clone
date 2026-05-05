@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microscope Specimen Size Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🔬</span>
+            <span>SpecimenCalc</span>
+        </div>
+        <div class="nav-links">
+            <a href="/" target="_self" class="active">Calculator</a>
+            <a href="/history" target="_self">History</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="page-header">
+            <h1>Microscope Specimen Size Calculator</h1>
+            <p class="subtitle">CSC 442 — Computational Biology & Interdisciplinary Studies</p>
+        </header>
+
+        <div class="calculator-grid">
+            <!-- Input Panel -->
+            <div class="panel input-panel">
+                <h2>🧮 Enter Details</h2>
+
+                <form id="calcForm" enctype="multipart/form-data">
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="username">Username *</label>
+                        <input type="text" id="username" name="username" 
+                               placeholder="Enter your username" required>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="form-group">
+                        <label for="specimen_image">Specimen Image</label>
+                        <div class="upload-zone" id="uploadZone">
+                            <input type="file" id="specimen_image" name="specimen_image" 
+                                   accept="image/*" hidden>
+                            <div class="upload-content">
+                                <span class="upload-icon">📁</span>
+                                <p>Click to browse or drag & drop image</p>
+                                <span class="upload-hint">PNG, JPG, JPEG, GIF, BMP</span>
+                            </div>
+                        </div>
+                        <div class="image-preview" id="imagePreview" style="display:none;">
+                            <img id="previewImg" src="" alt="Preview">
+                            <button type="button" class="remove-image" id="removeImage">✕</button>
+                        </div>
+                    </div>
+
+                    <!-- Measured Size -->
+                    <div class="form-group">
+                        <label for="measured_size">Measured Size (mm) *</label>
+                        <input type="number" id="measured_size" name="measured_size" 
+                               step="any" min="0.000001" placeholder="e.g., 25.4" required>
+                        <span class="hint">Size as measured from the microscope image</span>
+                    </div>
+
+                    <!-- Magnification Input Method -->
+                    <div class="form-group">
+                        <label>Magnification Input *</label>
+                        <div class="choice-group" role="radiogroup" aria-label="Magnification input method">
+                            <label class="choice-option">
+                                <input type="radio" name="magnification_source" value="microscope_type" checked>
+                                <span>Microscope Type</span>
+                            </label>
+                            <label class="choice-option">
+                                <input type="radio" name="magnification_source" value="custom_magnification">
+                                <span>Magnification</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Microscope Type -->
+                    <div class="form-group" id="microscopeTypeGroup">
+                        <label for="microscope_type">Microscope Type *</label>
+                        <select id="microscope_type" name="microscope_type" required>
+                            <option value="" disabled selected>Select microscope...</option>
+                            {% for name, mag in microscopes.items() %}
+                            <option value="{{ name }}">{{ name }} (×{{ format_magnification(mag) }})</option>
+                            {% endfor %}
+                        </select>
+                        <span class="hint">The app will use the standard magnification for the selected microscope.</span>
+                    </div>
+
+                    <!-- Custom Magnification -->
+                    <div class="form-group" id="customMagnificationGroup" style="display:none;">
+                        <label for="custom_magnification">Magnification Factor *</label>
+                        <input type="number" id="custom_magnification" name="custom_magnification"
+                               step="any" min="0.000001" placeholder="e.g., 400">
+                        <span class="hint">Enter the magnification directly, without the × symbol.</span>
+                    </div>
+
+                    <!-- Output Unit -->
+                    <div class="form-group">
+                        <label for="output_unit">Output Unit *</label>
+                        <select id="output_unit" name="output_unit" required>
+                            {% for unit in units %}
+                            <option value="{{ unit }}" {% if unit == 'mm' %}selected{% endif %}>{{ unit }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-calculate">
+                        <span class="btn-icon">🧮</span>
+                        Calculate Real Size
+                    </button>
+                </form>
+            </div>
+
+            <!-- Result Panel -->
+            <div class="panel result-panel">
+                <h2>📊 Result</h2>
+
+                <div id="resultContainer" class="result-container">
+                    <div class="result-placeholder">
+                        <span class="placeholder-icon">🔬</span>
+                        <p>Enter details and click Calculate to see results</p>
+                    </div>
+                </div>
+
+                <div id="resultDetails" class="result-details" style="display:none;">
+                    <div class="result-highlight">
+                        <span class="result-label">Real Size</span>
+                        <span class="result-value" id="resultValue">—</span>
+                        <span class="result-unit" id="resultUnit">—</span>
+                    </div>
+
+                    <div class="breakdown">
+                        <h3>📐 Calculation Breakdown</h3>
+                        <div class="breakdown-steps" id="breakdownSteps"></div>
+                    </div>
+
+                    <div class="formula-box">
+                        <h4>Core Formula</h4>
+                        <code>Real Size = Measured Size (mm) ÷ Magnification Factor</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025/2026 CSC 442 — FEMI-BABATUNDE OLAMIDE (22CG031858)</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculation History | SpecimenCalc</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🔬</span>
+            <span>SpecimenCalc</span>
+        </div>
+        <div class="nav-links">
+            <a href="/" target="_self">Calculator</a>
+            <a href="/history" target="_self" class="active">History</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="page-header">
+            <h1>📋 Calculation History</h1>
+            <p class="subtitle">View and manage all saved calculations</p>
+        </header>
+
+        <div class="history-controls">
+            <div class="stats">
+                <span class="stat-badge">Total Records: <strong id="totalRecords">{{ records|length }}</strong></span>
+            </div>
+            <div class="actions">
+                <button class="btn-refresh" onclick="location.reload()">🔄 Refresh</button>
+            </div>
+        </div>
+
+        {% if records %}
+        <div class="table-container">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Specimen Size</th>
+                        <th>Microscope Type</th>
+                        <th>Magnification</th>
+                        <th>Real Size</th>
+                        <th>Unit</th>
+                        <th>Image</th>
+                        <th>Timestamp</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td class="cell-id">{{ record.id }}</td>
+                        <td class="cell-user">{{ record.username }}</td>
+                        <td class="cell-size">{{ "%.4f"|format(record.specimen_size) }} {{ record.specimen_unit }}</td>
+                        <td class="cell-microscope">{{ record.microscope_type }}</td>
+                        <td class="cell-mag">×{{ "{:,.2f}".format(record.magnification).rstrip("0").rstrip(".") }}</td>
+                        <td class="cell-real">{{ "%.6f"|format(record.real_size) }}</td>
+                        <td class="cell-unit">{{ record.real_size_unit }}</td>
+                        <td class="cell-image">
+                            {% if record.image_path %}
+                            <a href="{{ url_for('static', filename=record.image_path.replace('static/', '')) }}" 
+                               class="image-link">📷 View</a>
+                            {% else %}
+                            <span class="no-image">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="cell-time">{{ record.calculation_timestamp }}</td>
+                        <td class="cell-actions">
+                            <form action="/delete/{{ record.id }}" method="POST" 
+                                  onsubmit="return confirm('Delete this record?');" class="delete-form">
+                                <button type="submit" class="btn-delete">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="empty-icon">📭</span>
+            <h3>No Records Yet</h3>
+            <p>Perform your first calculation to see it here.</p>
+            <a href="/" class="btn-primary">Go to Calculator</a>
+        </div>
+        {% endif %}
+    </main>
+
+    <footer>
+        <p>© 2025/2026 CSC 442 — FEMI-BABATUNDE OLAMIDE (22CG031858)</p>
+    </footer>
+</body>
+</html>
