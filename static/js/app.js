@@ -188,6 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    console.log('%c✅ SpecimenScope JS loaded successfully - Modern redesign active', 
+    console.log('%c✅ MangifiCalc JS loaded successfully - Modern redesign active', 
                 'color: #60a5fa; font-weight: bold');
 });
